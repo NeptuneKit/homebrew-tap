@@ -12,6 +12,10 @@ class Triton < Formula
     sha256 "7ff12b4cf2c232863d19f82b1c92b9c6b54680d60415d008f7fdbd89925874d7"
   end
 
+  on_intel do
+    url "https://github.com/NeptuneKit/TritonKit/releases/download/v0.1.35/triton-macos-x86_64.tar.gz"
+    sha256 "7acf00be4c064d8a053180b5339155cd8286be1ce380cc14c5a61c4871ddfa3d"
+  end
 
   depends_on :macos
 
