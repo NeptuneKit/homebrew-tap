@@ -4,18 +4,14 @@
 class Triton < Formula
   desc "DEBUG-only iOS app inspection and control CLI for AI agents"
   homepage "https://github.com/NeptuneKit/TritonKit"
-  version "0.2.26"
+  version "0.2.28"
   license :cannot_represent
 
   on_arm do
-    url "https://github.com/NeptuneKit/TritonKit/releases/download/v0.2.26/triton-macos-arm64.tar.gz"
-    sha256 "2a925dfb50ea440a761e339f93239bda94714d199a0037be02d89d4f39855324"
+    url "https://github.com/NeptuneKit/TritonKit/releases/download/v0.2.28/triton-macos-arm64.tar.gz"
+    sha256 "59a9b25e4b330c85f4a5f973898f36ff116d63ba1d06ad586e1a9b9542106f54"
   end
 
-  on_intel do
-    url "https://github.com/NeptuneKit/TritonKit/releases/download/v0.2.26/triton-macos-x86_64.tar.gz"
-    sha256 "29da0300f6ae447d8163f08de87065b4bb3504b3df64da48ae751a3815317486"
-  end
 
   depends_on :macos
 
@@ -26,12 +22,20 @@ class Triton < Formula
     web_dir = Dir["triton-macos-*/web"].first || Dir["web"].first
     odie "bundled web assets not found in release archive" if web_dir.nil?
 
+    runner_dir = Dir["triton-macos-*/resources/ios-runner"].first || Dir["resources/ios-runner"].first
+    odie "bundled iOS Runner project not found in release archive" if runner_dir.nil?
+
     bin.install binary => "triton"
     pkgshare.install web_dir => "web"
+    pkgshare.install runner_dir => "ios-runner"
+    resource_bundles = Dir["triton-macos-*/*.bundle"] + Dir["*.bundle"]
+    odie "SwiftPM resource bundle not found in release archive" if resource_bundles.empty?
+    bin.install resource_bundles
   end
 
   test do
     require "json"
+    require "digest"
 
     assert_match version.to_s, shell_output("#{bin}/triton version")
 
@@ -40,6 +44,15 @@ class Triton < Formula
     assert_equal version.to_s, version_json["version"]
 
     assert_path_exists pkgshare/"web/index.html"
+    assert_path_exists pkgshare/"ios-runner/RUNNER_MANIFEST.json"
+    assert_path_exists pkgshare/"ios-runner/TritonIOSRunner.xcodeproj/project.pbxproj"
+    runner_manifest = JSON.parse((pkgshare/"ios-runner/RUNNER_MANIFEST.json").read)
+    assert_equal version.to_s, runner_manifest["sourceVersion"]
+    runner_manifest.fetch("files").each do |entry|
+      runner_file = pkgshare/"ios-runner"/entry.fetch("path")
+      assert_path_exists runner_file
+      assert_equal entry.fetch("sha256"), Digest::SHA256.file(runner_file).hexdigest
+    end
 
     web_plan = JSON.parse(shell_output("#{bin}/triton web --print-command --json"))
     assert_equal true, web_plan["ok"]
