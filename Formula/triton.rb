@@ -4,18 +4,14 @@
 class Triton < Formula
   desc "DEBUG-only iOS app inspection and control CLI for AI agents"
   homepage "https://github.com/NeptuneKit/TritonKit"
-  version "0.2.39"
+  version "0.2.40"
   license :cannot_represent
 
   on_arm do
-    url "https://github.com/NeptuneKit/TritonKit/releases/download/v0.2.39/triton-macos-arm64.tar.gz"
-    sha256 "5fb996e84fd783e459bed6058c5f975377f44f4745a71eaab697e3f4ab6f962d"
+    url "https://github.com/NeptuneKit/TritonKit/releases/download/v0.2.40/triton-macos-arm64.tar.gz"
+    sha256 "e94f17c3365dc5333e013a332faa178e2583fb4e96c21b1b70f1a71e4da6e11c"
   end
 
-  on_intel do
-    url "https://github.com/NeptuneKit/TritonKit/releases/download/v0.2.39/triton-macos-x86_64.tar.gz"
-    sha256 "8d3a746748db602be0b7b9ac2d4e1e5f740adfb523f837abd603bfa574613206"
-  end
 
   depends_on :macos
 
